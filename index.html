@@ -15,6 +15,10 @@
     <!-- Canvas Confetti Library for Gamification Celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+    <!-- Firebase App and Realtime Database Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -136,14 +140,20 @@
                     </p>
                 </div>
 
-                <!-- Coordinator Contact Quick Badge -->
+                <!-- Coordinator & Co-coordinator Contact Quick Badge -->
                 <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex flex-col items-center md:items-end text-center md:text-right min-w-[260px]">
                     <span class="text-xs uppercase text-slate-300 font-medium">Program Coordinator</span>
                     <span class="font-bold text-white text-base">Dr. Shivkumar Math</span>
                     <span class="text-xs text-amber-300 font-semibold">HOD - Physics, JCE Belagavi</span>
-                    <div class="mt-2 flex gap-2">
+                    <div class="mt-1 flex gap-2">
                         <a href="mailto:shivuphy@jainbgm.in" class="text-xs bg-white/20 hover:bg-white/30 text-white px-2.5 py-1 rounded-lg transition"><i class="fa-solid fa-envelope mr-1"></i> Email</a>
                         <a href="tel:9964515505" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-2.5 py-1 rounded-lg transition"><i class="fa-solid fa-phone mr-1"></i> 9964515505</a>
+                    </div>
+
+                    <div class="mt-3 pt-2 border-t border-white/20 w-full flex flex-col items-center md:items-end">
+                        <span class="text-xs uppercase text-slate-300 font-medium">Program Co-coordinator</span>
+                        <span class="font-bold text-white text-sm">Prof. Pooja M Jarali</span>
+                        <span class="text-xs text-amber-300 font-semibold">Mathematics, JCE Belagavi</span>
                     </div>
                 </div>
             </div>
@@ -168,7 +178,7 @@
                         <i class="fa-solid fa-circle-play text-base text-red-500"></i> Video Recordings
                     </button>
                 </div>
-                <!-- Admin Portal Button (Hidden from View - Triggered via '9999') -->
+                <!-- Admin Portal Button -->
                 <button onclick="openAdminModal()" class="hidden ml-4 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition flex-shrink-0">
                     <i class="fa-solid fa-user-gear"></i> Admin Portal
                 </button>
@@ -217,7 +227,7 @@
 
             <!-- Schedule Grid -->
             <div id="schedule-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                <!-- Dynamically populated via JavaScript -->
+                <!-- Populated via JavaScript -->
             </div>
         </section>
 
@@ -559,11 +569,10 @@
             <div id="admin-panel-content" class="hidden p-6 space-y-6">
                 <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-xs text-amber-900 space-y-1">
                     <p class="font-bold flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> Option 1: Passport Photo Upload & Single-File Export Instructions:</p>
-                    <p>• <strong>Upload Passport Photo:</strong> Click <strong class="bg-blue-100 text-jce-blue px-1 rounded"><i class="fa-solid fa-upload"></i> Upload</strong> to select a photo from your computer. It converts automatically into Base64 so it stays permanently inside your single HTML file!</p>
+                    <p>• <strong>Upload Passport Photo:</strong> Click <strong class="bg-blue-100 text-jce-blue px-1 rounded"><i class="fa-solid fa-upload"></i> Upload</strong> to select a photo from your computer.</p>
                     <p>• <strong>Edit Day & Date:</strong> Modify Day #, Day of Week, and Date via dedicated inputs on each session card.</p>
                     <p>• <strong>Glow Override:</strong> Click <strong class="bg-amber-200 text-amber-900 px-1 rounded"><i class="fa-solid fa-sun"></i> Set as Today's Glow</strong> to force live golden highlight on any card.</p>
-                    <p>• <strong>Split Sessions:</strong> Click <strong class="bg-amber-200 text-amber-900 px-1 rounded">Split (45m + 45m)</strong> to divide a 90-minute session into two 45-minute sub-sessions.</p>
-                    <p>• <strong>Publish to GitHub:</strong> Click <strong class="bg-amber-300 text-amber-950 px-1 rounded"><i class="fa-solid fa-file-code"></i> Export Updated HTML</strong> to download your updated `index.html` file with embedded Base64 photos, then upload it straight to GitHub!</p>
+                    <p>• <strong>Publish to GitHub:</strong> Click <strong class="bg-amber-300 text-amber-950 px-1 rounded"><i class="fa-solid fa-file-code"></i> Export Updated HTML</strong> to download your updated `index.html` file!</p>
                 </div>
 
                 <div class="flex flex-wrap gap-3 justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
@@ -589,7 +598,7 @@
 
                 <div class="pt-4 border-t border-slate-200 flex justify-end">
                     <button onclick="saveAdminSessions()" class="px-6 py-2.5 bg-jce-blue hover:bg-blue-800 text-white font-bold rounded-xl text-xs transition shadow-md flex items-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> Save Local Changes
+                        <i class="fa-solid fa-floppy-disk"></i> Save & Broadcast Changes
                     </button>
                 </div>
             </div>
@@ -624,7 +633,25 @@
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
     <script>
-        // Schedule Dataset containing exact Google Meet URLs from Word Document
+        const firebaseConfig = {
+            apiKey: "AIzaSyAZ3Kto8VlVYfpKyWDmUHKZwJm5O3TP_aQ",
+            authDomain: "jce-orientation-2026.firebaseapp.com",
+            databaseURL: "https://jce-orientation-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "jce-orientation-2026",
+            storageBucket: "jce-orientation-2026.firebasestorage.app",
+            messagingSenderId: "624675313796",
+            appId: "1:624675313796:web:aaffa6fda0780bfdac4ad1",
+            measurementId: "G-HDVW8V6YJZ"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+        const leaderboardRef = db.ref('leaderboard');
+        const sessionsRef = db.ref('sessions');
+
+        // Schedule Dataset
         const defaultSchedule = [
             {
                 "dayNum": 1,
@@ -633,9 +660,9 @@
                 "week": "week1",
                 "timeSlot": "10:00 AM - 10:45 AM (Part 1)",
                 "topic": "Welcome to Engineering Excellence : Orientation Inauguration and Academic Vision — Part I",
-                "speaker": "Dr. J. Shivkumar, Principal & Director, JCE-Belagavi",
+                "speaker": "Dr. J. Shivakumar, Principal & Director, JCE-Belagavi",
                 "photoUrl": "",
-                "courseUrl": "https://vlab.amrita.edu/",
+                "courseUrl": "",
                 "description": "Inaugural session introducing VTU regulations, academic curriculum, and institutional vision.",
                 "meetLink": "https://meet.google.com/vgp-yrzy-ysd",
                 "videoLink": ""
@@ -666,6 +693,8 @@
                 "courseUrl": "",
                 "description": "A broad range of activities built on structural order and student empowerment.",
                 "meetLink": "https://meet.google.com/wcp-wtqu-hnz",
+                "secondMeetLink": "https://meet.google.com/nju-zzmf-ozt",
+                "meetInstructions": "If the first Google Meet link is full, please join with the second Google Meet link.",
                 "videoLink": ""
             },
             {
@@ -1109,7 +1138,7 @@
                 { id: 3, prompt: "Hardest naturally occurring carbon allotrope:", options: ["Diamond", "Graphite", "Graphene", "Charcoal"], correct: "Diamond" }
             ],
             7: [
-                { id: 1, prompt: "Corrosion-resistant metal alloy in jet engine turbines:", options: ["Titanium Alloy", "Brass", "Bronze", "Solder"], correct: "Titanium Alloy" },
+                { id: 1, prompt: "Corrosion-resistant metal alloy in jet engine turbines?", options: ["Titanium Alloy", "Brass", "Bronze", "Solder"], correct: "Titanium Alloy" },
                 { id: 2, prompt: "Main element added to steel to make Stainless Steel:", options: ["Chromium", "Copper", "Gold", "Lead"], correct: "Chromium" },
                 { id: 3, prompt: "Alloy consisting of Copper and Zinc:", options: ["Brass", "Bronze", "Steel", "Electrum"], correct: "Brass" }
             ],
@@ -1149,10 +1178,11 @@
         let activeScheduleFilter = 'all';
         let currentActivityDay = 1;
 
-        const TODAY_DATE = 'Aug 04, 2026';
-        let manualGlowIndex = null;
+        // Active Glowing Status forced for Day 3 (Prof. Yogesh Chavadi)
+        const TODAY_DATE = 'Aug 06, 2026';
+        let manualGlowIndex = 3;
 
-        // Global key sequence listener for typing "9999"
+        // Key sequence listener for typing "9999"
         let secretBuffer = '';
         window.addEventListener('keydown', (e) => {
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
@@ -1198,13 +1228,23 @@
         }
 
         function initApp() {
-            localStorage.removeItem('jce_sessions_2026');
-            sessions = defaultSchedule;
-
-            const savedLeaderboard = localStorage.getItem('jce_leaderboard_2026');
-            if (savedLeaderboard) {
-                try { leaderboard = JSON.parse(savedLeaderboard); } catch(e) { leaderboard = []; }
-            }
+            // Subscribe to Firebase Realtime Database for Day Session Cards
+            sessionsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && Array.isArray(data) && data.length > 0) {
+                    sessions = data;
+                } else {
+                    // Seed database with default schedule if empty
+                    sessions = [...defaultSchedule];
+                    sessionsRef.set(defaultSchedule);
+                }
+                renderSchedule();
+                renderVideoGallery();
+                if (!document.getElementById('admin-modal').classList.contains('hidden') && 
+                    !document.getElementById('admin-panel-content').classList.contains('hidden')) {
+                    renderAdminSessionsEditor();
+                }
+            });
 
             const savedProfile = localStorage.getItem('jce_student_profile');
             if (savedProfile) {
@@ -1216,12 +1256,21 @@
                 } catch(e) {}
             }
 
-            renderSchedule();
+            leaderboardRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                leaderboard = [];
+                if (data) {
+                    Object.values(data).forEach(item => {
+                        leaderboard.push(item);
+                    });
+                    leaderboard.sort((a, b) => b.totalScore - a.totalScore);
+                }
+                renderLeaderboard();
+            });
+
             renderEmojiPuzzles();
             renderDaySelectorButtons();
             selectActivityDay(1);
-            renderLeaderboard();
-            renderVideoGallery();
         }
 
         function switchTab(tabId) {
@@ -1290,6 +1339,28 @@
                     ? `<img src="${session.photoUrl}" alt="${session.speaker}" class="w-12 h-14 rounded-xl object-cover object-center border-2 border-jce-blue/30 shadow-md flex-shrink-0 bg-slate-100" style="image-rendering: -webkit-optimize-contrast;">`
                     : `<div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs flex-shrink-0 shadow-sm"><i class="fa-solid fa-user-tie text-base text-jce-blue"></i></div>`;
 
+                // Build Google Meet link buttons (Primary + Optional Secondary with Instruction Box)
+                let meetButtonsHtml = `
+                    <a href="${session.meetLink}" target="_blank" class="px-4 py-2 bg-jce-blue hover:bg-blue-800 text-white font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm pulse-subtle">
+                        <i class="fa-solid fa-video"></i> Join Live Google Meet
+                    </a>
+                `;
+
+                if (session.secondMeetLink) {
+                    meetButtonsHtml += `
+                        <a href="${session.secondMeetLink}" target="_blank" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-video"></i> Secondary Google Meet Link
+                        </a>
+                    `;
+                }
+
+                const meetInstructionBox = session.meetInstructions ? `
+                    <div class="w-full mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-[11px] font-semibold text-amber-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-amber-600 text-xs flex-shrink-0"></i>
+                        <span>${session.meetInstructions}</span>
+                    </div>
+                ` : '';
+
                 card.innerHTML = `
                     <div class="space-y-4">
                         ${todayBadge}
@@ -1319,14 +1390,13 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-2">
                         <div class="flex flex-wrap items-center gap-2">
-                            <a href="${session.meetLink}" target="_blank" class="px-4 py-2 bg-jce-blue hover:bg-blue-800 text-white font-bold rounded-xl text-xs transition flex items-center gap-2 shadow-sm pulse-subtle">
-                                <i class="fa-solid fa-video"></i> Join Live Google Meet
-                            </a>
+                            ${meetButtonsHtml}
                             ${courseBtn}
+                            ${videoBtn}
                         </div>
-                        ${videoBtn}
+                        ${meetInstructionBox}
                     </div>
                 `;
                 container.appendChild(card);
@@ -1425,7 +1495,10 @@
             const totalScore = Object.values(activeStudent.scores).reduce((a, b) => a + b, 0);
             const activitiesCount = Object.keys(activeStudent.scores).length;
 
-            const existingIndex = leaderboard.findIndex(item => item.name.toLowerCase() === activeStudent.name.toLowerCase() && item.branch === activeStudent.branch);
+            const studentKey = (activeStudent.name + '_' + activeStudent.branch)
+                .replace(/[^a-zA-Z0-9]/g, '_')
+                .toLowerCase();
+
             const entry = {
                 name: activeStudent.name,
                 branch: activeStudent.branch,
@@ -1436,15 +1509,13 @@
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
 
-            if (existingIndex >= 0) {
-                leaderboard[existingIndex] = entry;
-            } else {
-                leaderboard.push(entry);
-            }
-
-            leaderboard.sort((a, b) => b.totalScore - a.totalScore);
-            localStorage.setItem('jce_leaderboard_2026', JSON.stringify(leaderboard));
-            renderLeaderboard();
+            db.ref('leaderboard/' + studentKey).set(entry)
+                .then(() => {
+                    showNotification(`Score synced live across all devices! (+${score} pts)`, 'success');
+                })
+                .catch((err) => {
+                    console.error("Firebase sync error:", err);
+                });
         }
 
         function renderCrosswordBoard() {
@@ -1539,8 +1610,6 @@
             if (typeof confetti === 'function' && score > 0) {
                 confetti({ particleCount: 70, spread: 50 });
             }
-
-            showNotification(`Day ${currentActivityDay} Crossword Complete! Score: ${score} / 50 pts (${correctCells}/${totalCells} letters correct).`, 'success');
         }
 
         function renderPhysicsActivity() {
@@ -1739,7 +1808,6 @@
             if (q3Val === pData.q3Correct) score += 15;
 
             recordScore(`Physics Day ${currentActivityDay}`, score, 50);
-            showNotification(`Physics Day ${currentActivityDay} Complete! Scored ${score}/50 points.`, 'success');
         }
 
         function renderMathActivity() {
@@ -1783,7 +1851,6 @@
             recordScore(`Math Day ${currentActivityDay}`, score, 50);
 
             if (typeof confetti === 'function' && score > 0) confetti({ particleCount: 60 });
-            showNotification(`Math Quest Day ${currentActivityDay} Complete! Scored ${score}/50 points.`, 'success');
         }
 
         function renderChemistryQuiz() {
@@ -1828,7 +1895,6 @@
             recordScore(`Chemistry Day ${currentActivityDay}`, points, 50);
 
             if (typeof confetti === 'function' && points > 0) confetti({ particleCount: 60 });
-            showNotification(`Chemistry Quest Day ${currentActivityDay} Complete! Solved ${correctCount}/${cData.length} (${points}/50 pts).`, 'success');
         }
 
         function renderEmojiPuzzles() {
@@ -1867,8 +1933,6 @@
             if (typeof confetti === 'function' && pointsEarned > 0) {
                 confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
             }
-
-            showNotification(`Emoji-neering Complete! Solved ${correctCount}/10 correctly (+${pointsEarned} pts).`, 'success');
         }
 
         function renderLeaderboard() {
@@ -2102,8 +2166,12 @@
                         </div>
 
                         <div class="sm:col-span-2 lg:col-span-3">
-                            <label class="block font-semibold text-slate-600 mb-1">Google Meet Link</label>
+                            <label class="block font-semibold text-slate-600 mb-1">Primary Google Meet Link</label>
                             <input type="text" value="${s.meetLink}" onchange="updateSessionField(${idx}, 'meetLink', this.value)" class="w-full px-3 py-1.5 border rounded-xl bg-white">
+                        </div>
+                        <div class="sm:col-span-2 lg:col-span-3">
+                            <label class="block font-semibold text-slate-600 mb-1">Secondary Google Meet Link (Backup)</label>
+                            <input type="text" value="${s.secondMeetLink || ''}" onchange="updateSessionField(${idx}, 'secondMeetLink', this.value)" class="w-full px-3 py-1.5 border rounded-xl bg-white" placeholder="https://meet.google.com/...">
                         </div>
                         <div class="sm:col-span-2 lg:col-span-3">
                             <label class="block font-semibold text-slate-600 mb-1">Recording URL</label>
@@ -2115,7 +2183,6 @@
             });
         }
 
-        // Converts uploaded image file to Base64 text and embeds it into memory
         function handleAdminPhotoUpload(event, index) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2201,26 +2268,37 @@
 
         function resetScheduleToDefault() {
             sessions = [...defaultSchedule];
-            manualGlowIndex = null;
-            localStorage.removeItem('jce_sessions_2026');
-            renderAdminSessionsEditor();
-            renderSchedule();
-            showNotification('Schedule reset to original defaults.', 'info');
+            manualGlowIndex = 3;
+            sessionsRef.set(defaultSchedule)
+                .then(() => {
+                    renderAdminSessionsEditor();
+                    showNotification('Schedule reset to original defaults live on database.', 'info');
+                })
+                .catch((err) => {
+                    console.error("Firebase reset error:", err);
+                    showNotification('Failed to reset defaults on database.', 'error');
+                });
         }
 
         function clearAllLeaderboardData() {
-            leaderboard = [];
-            localStorage.removeItem('jce_leaderboard_2026');
-            renderLeaderboard();
-            showNotification('Leaderboard submissions cleared.', 'info');
+            db.ref('leaderboard').remove()
+                .then(() => {
+                    leaderboard = [];
+                    renderLeaderboard();
+                    showNotification('Live cloud leaderboard wiped successfully.', 'info');
+                });
         }
 
         function saveAdminSessions() {
-            localStorage.setItem('jce_sessions_2026', JSON.stringify(sessions));
-            renderSchedule();
-            renderVideoGallery();
-            closeAdminModal();
-            showNotification('All local session updates saved successfully!', 'success');
+            sessionsRef.set(sessions)
+                .then(() => {
+                    closeAdminModal();
+                    showNotification('All session updates synced live to Firebase for all users!', 'success');
+                })
+                .catch((err) => {
+                    console.error("Firebase session sync error:", err);
+                    showNotification('Failed to sync changes to database.', 'error');
+                });
         }
 
         function exportUpdatedHTML() {
